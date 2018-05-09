@@ -10,7 +10,7 @@ import org.apache.spark.api.java.JavaSparkContext;
  */
 public class GreyScaleSpark {
     public static void main(String[] args) {
-        SparkConf conf = new SparkConf().setAppName("GreyScale").setMaster("");
+        SparkConf conf = new SparkConf().setAppName("GreyScale").setMaster("yarn-cluster");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         JavaPairRDD<Text,ByteWritable> distFile = sc.sequenceFile(args[0], Text.class, ByteWritable.class);
