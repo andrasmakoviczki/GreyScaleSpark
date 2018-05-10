@@ -56,8 +56,11 @@ public class GreyScaleSpark {
                     return tuple;
                 }
 
-                Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC1);
-                return null;
+                BufferedImage bufimage = new BufferedImage(100, 100,
+                        BufferedImage.TYPE_INT_ARGB);
+                Text emptyImage = new Text("empty");
+
+                return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
             }
         });
 
