@@ -32,6 +32,18 @@ import java.net.URI;
  * Created by AMakoviczki on 2018. 05. 09..
  */
 public class GreyScaleSpark {
+    class RDDMultipleTextOutputFormat extends MultipleTextOutputFormat{
+        @Override
+        protected String generateFileNameForKeyValue(Object key, Object value, String name) {
+            return key.toString();
+        }
+
+        @Override
+        protected Object generateActualKey(Object key, Object value) {
+            return NullWritable.get();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         SparkConf conf = new SparkConf().setAppName("GreyScale")
@@ -105,18 +117,6 @@ public class GreyScaleSpark {
         output.write(imageInByte);*/
 
         System.out.println(matPair.count());
-    }
-
-    class RDDMultipleTextOutputFormat extends MultipleTextOutputFormat{
-        @Override
-        protected String generateFileNameForKeyValue(Object key, Object value, String name) {
-            return key.toString();
-        }
-
-        @Override
-        protected Object generateActualKey(Object key, Object value) {
-            return NullWritable.get();
-        }
     }
 
 }
