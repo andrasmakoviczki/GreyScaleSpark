@@ -4,7 +4,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.lib.MultipleTextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.spark.Accumulator;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -51,15 +54,12 @@ public class GreyScaleSpark {
         JavaPairRDD<Text, BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
 
         JavaPairRDD<Text, BufferedImage> matPair = distFile.mapToPair(new PairFunction<Tuple2<Text, BytesWritable>, Text, BufferedImage>() {
-            Integer i = 0;
             @Override
             public Tuple2<Text, BufferedImage> call(Tuple2<Text, BytesWritable> textByteWritableTuple2) throws Exception {
 
                 BufferedImage bufimage = new BufferedImage(100, 100,
                         BufferedImage.TYPE_INT_ARGB);
                 Text emptyImage = new Text("empty");
-
-                i = i + 1;
 
                 try {
                     InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
@@ -78,16 +78,7 @@ public class GreyScaleSpark {
                         BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
                         image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
 
-                        FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + 1 ));
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ImageIO.write(image1,"jpg",baos);
-                        baos.flush();
-                        byte[] imageInByte = baos.toByteArray();
-                        baos.close();
-
-                        output.write(imageInByte);
-
-                        Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(textByteWritableTuple2._1(), image1);
+                        Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(new Text("grey-" + new File(textByteWritableTuple2._1().toString()).getName()), image1);
 
                         return tuple;
                     }
@@ -98,13 +89,34 @@ public class GreyScaleSpark {
                 } catch (IIOException ex){
 
                 }
-
-                i=i+1;
                 return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
             }
         });
 
+        matPair.saveAsHadoopFile(hdfsPath,NullWritable.class,BytesWritable.class,RDDMultipleTextOutputFormat.class);
+
+        /*FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + 1 ));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image1,"jpg",baos);
+        baos.flush();
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+
+        output.write(imageInByte);*/
+
         System.out.println(matPair.count());
+    }
+
+    class RDDMultipleTextOutputFormat extends MultipleTextOutputFormat{
+        @Override
+        protected String generateFileNameForKeyValue(Object key, Object value, String name) {
+            return key.toString();
+        }
+
+        @Override
+        protected Object generateActualKey(Object key, Object value) {
+            return NullWritable.get();
+        }
     }
 
 }
