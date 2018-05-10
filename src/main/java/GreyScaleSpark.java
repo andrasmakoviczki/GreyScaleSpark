@@ -25,7 +25,9 @@ import java.io.InputStream;
 public class GreyScaleSpark {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        SparkConf conf = new SparkConf().setAppName("GreyScale").setMaster("yarn-cluster");
+        SparkConf conf = new SparkConf().setAppName("GreyScale")
+                //.setMaster("yarn-cluster")
+                ;
         JavaSparkContext sc = new JavaSparkContext(conf);
 
         JavaPairRDD<Text,BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
