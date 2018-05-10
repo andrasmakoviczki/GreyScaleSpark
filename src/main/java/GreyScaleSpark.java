@@ -1,3 +1,7 @@
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
@@ -17,19 +21,31 @@ import scala.Tuple2;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URI;
 
 /**
  * Created by AMakoviczki on 2018. 05. 09..
  */
 public class GreyScaleSpark {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         SparkConf conf = new SparkConf().setAppName("GreyScale")
                 //.setMaster("yarn-cluster")
                 ;
+
         JavaSparkContext sc = new JavaSparkContext(conf);
+
+        Configuration hadoopConf = new Configuration();
+        final String hdfsPath = args[1];
+        conf.set("fs.defaultFS", hdfsPath);
+        conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+        conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
+        conf.set("yarn.app.mapreduce.am.staging-dir", "/tmp");
+
+        final FileSystem fs = FileSystem.get(URI.create(hdfsPath), hadoopConf);
+        Path outputPath = new Path(hdfsPath);
+
 
         JavaPairRDD<Text, BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
 
@@ -46,7 +62,7 @@ public class GreyScaleSpark {
                     BufferedImage bImageFromConvert = ImageIO.read(in);
 
                     if (bImageFromConvert != null) {
-                        System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
+                        //System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
                         Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
                         mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
@@ -57,6 +73,15 @@ public class GreyScaleSpark {
                         mat1.get(0, 0, data1);
                         BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
                         image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
+
+                        FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + new File(textByteWritableTuple2._1().toString()).getName()));
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ImageIO.write(image1,"jpg",baos);
+                        baos.flush();
+                        byte[] imageInByte = baos.toByteArray();
+                        baos.close();
+
+                        output.write(imageInByte);
 
                         Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(textByteWritableTuple2._1(), image1);
                         return tuple;
