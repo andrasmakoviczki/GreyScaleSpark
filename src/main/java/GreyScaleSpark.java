@@ -8,6 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.bytedeco.javacpp.opencv_core;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -23,6 +24,7 @@ import java.io.InputStream;
  */
 public class GreyScaleSpark {
     public static void main(String[] args) {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         SparkConf conf = new SparkConf().setAppName("GreyScale").setMaster("yarn-cluster");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
