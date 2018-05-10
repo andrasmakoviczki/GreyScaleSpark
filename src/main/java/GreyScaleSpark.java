@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.spark.Accumulator;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -50,12 +51,15 @@ public class GreyScaleSpark {
         JavaPairRDD<Text, BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
 
         JavaPairRDD<Text, BufferedImage> matPair = distFile.mapToPair(new PairFunction<Tuple2<Text, BytesWritable>, Text, BufferedImage>() {
+            Integer i = 0;
             @Override
             public Tuple2<Text, BufferedImage> call(Tuple2<Text, BytesWritable> textByteWritableTuple2) throws Exception {
 
                 BufferedImage bufimage = new BufferedImage(100, 100,
                         BufferedImage.TYPE_INT_ARGB);
                 Text emptyImage = new Text("empty");
+
+                i = i + 1;
 
                 try {
                     InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
@@ -74,7 +78,7 @@ public class GreyScaleSpark {
                         BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
                         image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
 
-                        FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + new File(textByteWritableTuple2._1().toString()).getName()));
+                        FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + 1 ));
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ImageIO.write(image1,"jpg",baos);
                         baos.flush();
@@ -84,6 +88,7 @@ public class GreyScaleSpark {
                         output.write(imageInByte);
 
                         Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(textByteWritableTuple2._1(), image1);
+
                         return tuple;
                     }
                 } catch (UnsupportedOperationException ex) {
@@ -94,6 +99,7 @@ public class GreyScaleSpark {
 
                 }
 
+                i=i+1;
                 return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
             }
         });
