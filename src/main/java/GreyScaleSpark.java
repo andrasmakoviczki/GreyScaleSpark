@@ -30,29 +30,34 @@ public class GreyScaleSpark {
                 ;
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaPairRDD<Text,BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
+        JavaPairRDD<Text, BytesWritable> distFile = sc.sequenceFile(args[0], Text.class, BytesWritable.class);
 
-        JavaPairRDD<Text,BufferedImage> matPair = distFile.mapToPair(new PairFunction<Tuple2<Text, BytesWritable>, Text, BufferedImage>() {
+        JavaPairRDD<Text, BufferedImage> matPair = distFile.mapToPair(new PairFunction<Tuple2<Text, BytesWritable>, Text, BufferedImage>() {
             @Override
             public Tuple2<Text, BufferedImage> call(Tuple2<Text, BytesWritable> textByteWritableTuple2) throws Exception {
                 InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
                 BufferedImage bImageFromConvert = ImageIO.read(in);
 
-                System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
-                Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
-                mat.put(0, 0, textByteWritableTuple2._2().getBytes());
+                if (bImageFromConvert != null) {
+                    System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
+                    Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
+                    mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
+
+                    Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC1);
+                    Imgproc.cvtColor(mat, mat1, Imgproc.COLOR_RGB2GRAY);
+
+                    byte[] data1 = new byte[mat1.rows() * mat1.cols() * (int) (mat1.elemSize())];
+                    mat1.get(0, 0, data1);
+                    BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
+                    image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
+
+                    Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(textByteWritableTuple2._1(), image1);
+                    return tuple;
+                }
 
                 Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC1);
-                Imgproc.cvtColor(mat, mat1, Imgproc.COLOR_RGB2GRAY);
-
-                byte[] data1 = new byte[mat1.rows() * mat1.cols() * (int) (mat1.elemSize())];
-                mat1.get(0, 0, data1);
-                BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
-                image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
-
-                Tuple2<Text, BufferedImage> tuple = new Tuple2<Text, BufferedImage>(textByteWritableTuple2._1(), image1);
-                return tuple;
+                return null;
             }
         });
 
