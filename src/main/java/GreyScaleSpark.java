@@ -38,7 +38,7 @@ public class GreyScaleSpark {
                 InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
                 BufferedImage bImageFromConvert = ImageIO.read(in);
 
-                System.out.println(textByteWritableTuple2._2().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
+                System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
                 Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
                 mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
