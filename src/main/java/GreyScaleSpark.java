@@ -42,7 +42,7 @@ public class GreyScaleSpark {
                 mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
 
-                Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), opencv_core.CV_8UC1);
+                Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC1);
                 Imgproc.cvtColor(mat, mat1, Imgproc.COLOR_RGB2GRAY);
 
                 byte[] data1 = new byte[mat1.rows() * mat1.cols() * (int) (mat1.elemSize())];
