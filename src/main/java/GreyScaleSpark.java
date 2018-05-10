@@ -63,6 +63,8 @@ public class GreyScaleSpark {
 
                 } catch (NullPointerException ex) {
 
+                } catch (Exception ex){
+
                 }
 
                 return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
