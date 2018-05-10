@@ -14,6 +14,7 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 import scala.Tuple2;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -35,14 +36,15 @@ public class GreyScaleSpark {
         JavaPairRDD<Text, BufferedImage> matPair = distFile.mapToPair(new PairFunction<Tuple2<Text, BytesWritable>, Text, BufferedImage>() {
             @Override
             public Tuple2<Text, BufferedImage> call(Tuple2<Text, BytesWritable> textByteWritableTuple2) throws Exception {
-                InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
-                BufferedImage bImageFromConvert = ImageIO.read(in);
 
                 BufferedImage bufimage = new BufferedImage(100, 100,
                         BufferedImage.TYPE_INT_ARGB);
                 Text emptyImage = new Text("empty");
 
                 try {
+                    InputStream in = new ByteArrayInputStream(textByteWritableTuple2._2().getBytes());
+                    BufferedImage bImageFromConvert = ImageIO.read(in);
+
                     if (bImageFromConvert != null) {
                         System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
                         Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
@@ -63,7 +65,7 @@ public class GreyScaleSpark {
 
                 } catch (NullPointerException ex) {
 
-                } catch (Exception ex){
+                } catch (IIOException ex){
 
                 }
 
