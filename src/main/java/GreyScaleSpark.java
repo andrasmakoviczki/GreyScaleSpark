@@ -1,21 +1,14 @@
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.lib.MultipleTextOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
-import org.apache.spark.Accumulator;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
-
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -25,7 +18,10 @@ import scala.Tuple2;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 /**
@@ -46,9 +42,7 @@ public class GreyScaleSpark {
 
     public static void main(String[] args) throws IOException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        SparkConf conf = new SparkConf().setAppName("GreyScale")
-                //.setMaster("yarn-cluster")
-                ;
+        SparkConf conf = new SparkConf().setAppName("GreyScale");
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
@@ -104,17 +98,6 @@ public class GreyScaleSpark {
                 return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
             }
         });
-
-        matPair.saveAsHadoopFile(hdfsPath,NullWritable.class,BytesWritable.class,RDDMultipleTextOutputFormat.class);
-
-        /*FSDataOutputStream output = fs.create(new Path(hdfsPath + "/greyscale-" + 1 ));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image1,"jpg",baos);
-        baos.flush();
-        byte[] imageInByte = baos.toByteArray();
-        baos.close();
-
-        output.write(imageInByte);*/
 
         System.out.println(matPair.count());
     }
