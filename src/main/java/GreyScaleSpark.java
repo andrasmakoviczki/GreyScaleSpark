@@ -9,10 +9,10 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFunction;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_imgproc;
+import org.bytedeco.javacpp.opencv_java;
 import scala.Tuple2;
 
 import javax.imageio.IIOException;
@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+
+import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
+import static org.bytedeco.javacpp.opencv_core.CV_8UC3;
 
 /**
  * Created by AMakoviczki on 2018. 05. 09..
@@ -41,7 +44,7 @@ public class GreyScaleSpark {
     }
 
     public static void main(String[] args) throws IOException {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        Loader.load(opencv_java.class);
         SparkConf conf = new SparkConf().setAppName("GreyScale");
 
         JavaSparkContext sc = new JavaSparkContext(conf);
@@ -73,14 +76,14 @@ public class GreyScaleSpark {
 
                     if (bImageFromConvert != null) {
                         //System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
-                        Mat mat = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC3);
-                        mat.put(0, 0, textByteWritableTuple2._2().getBytes());
+                        opencv_core.Mat mat = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(),CV_8UC3);
+                        //mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
-                        Mat mat1 = new Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CvType.CV_8UC1);
-                        Imgproc.cvtColor(mat, mat1, Imgproc.COLOR_RGB2GRAY);
+                        opencv_core.Mat mat1 = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(),CV_8UC1);
+                        opencv_imgproc.cvtColor(mat, mat1, opencv_imgproc.COLOR_RGB2GRAY);
 
                         byte[] data1 = new byte[mat1.rows() * mat1.cols() * (int) (mat1.elemSize())];
-                        mat1.get(0, 0, data1);
+                        //mat1.get(0, 0, data1);
                         BufferedImage image1 = new BufferedImage(mat1.cols(), mat1.rows(), BufferedImage.TYPE_BYTE_GRAY);
                         image1.getRaster().setDataElements(0, 0, mat1.cols(), mat1.rows(), data1);
 
