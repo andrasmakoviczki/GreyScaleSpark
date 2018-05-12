@@ -45,6 +45,7 @@ public class GreyScaleSpark {
 
     public static void main(String[] args) throws IOException {
         Loader.load(opencv_java.class);
+
         SparkConf conf = new SparkConf().setAppName("GreyScale");
 
         JavaSparkContext sc = new JavaSparkContext(conf);
