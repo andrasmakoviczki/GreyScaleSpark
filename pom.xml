@@ -41,11 +41,11 @@
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>opencv</artifactId>
             <version>3.4.1-1.4.1</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>opencv</artifactId>
@@ -61,7 +61,7 @@
             <groupId>nu.pattern</groupId>
             <artifactId>opencv</artifactId>
             <version>2.4.9-7</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-jpeg</artifactId>
@@ -77,6 +77,7 @@
             <artifactId>imageio-tiff</artifactId>
             <version>3.3.2</version>
         </dependency>
+        -->
 
     </dependencies>
 
