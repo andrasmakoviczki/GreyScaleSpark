@@ -12,7 +12,6 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
-import org.bytedeco.javacpp.opencv_java;
 import scala.Tuple2;
 
 import javax.imageio.IIOException;
