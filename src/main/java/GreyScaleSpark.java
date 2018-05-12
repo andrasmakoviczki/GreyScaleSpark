@@ -75,6 +75,7 @@ public class GreyScaleSpark {
 
                     if (bImageFromConvert != null) {
                         //System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
+                        opencv_core.checkHardwareSupport(0);
                         opencv_core.Mat mat = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CV_8UC3);
                         mat.data().put(textByteWritableTuple2._2().getBytes());
 
