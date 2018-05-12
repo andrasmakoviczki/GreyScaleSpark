@@ -12,6 +12,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
+import org.bytedeco.javacpp.opencv_java;
 import scala.Tuple2;
 
 import javax.imageio.IIOException;
@@ -43,7 +44,7 @@ public class GreyScaleSpark {
     }
 
     public static void main(String[] args) throws IOException {
-        //Loader.load(opencv_java.class);
+        Loader.load(opencv_java.class);
         SparkConf conf = new SparkConf().setAppName("GreyScale");
 
         JavaSparkContext sc = new JavaSparkContext(conf);

@@ -41,11 +41,11 @@
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
-        <!-- <dependency>
+        <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>opencv</artifactId>
             <version>3.4.1-1.4.1</version>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>opencv</artifactId>
