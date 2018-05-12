@@ -31,7 +31,7 @@ import static org.bytedeco.javacpp.opencv_core.CV_8UC3;
  * Created by AMakoviczki on 2018. 05. 09..
  */
 public class GreyScaleSpark {
-    class RDDMultipleTextOutputFormat extends MultipleTextOutputFormat{
+    class RDDMultipleTextOutputFormat extends MultipleTextOutputFormat {
         @Override
         protected String generateFileNameForKeyValue(Object key, Object value, String name) {
             return key.toString();
@@ -76,10 +76,10 @@ public class GreyScaleSpark {
 
                     if (bImageFromConvert != null) {
                         //System.out.println(textByteWritableTuple2._1().toString() + ": " + bImageFromConvert.getHeight() + " " + bImageFromConvert.getWidth());
-                        opencv_core.Mat mat = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(),CV_8UC3);
+                        opencv_core.Mat mat = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CV_8UC3);
                         //mat.put(0, 0, textByteWritableTuple2._2().getBytes());
 
-                        opencv_core.Mat mat1 = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(),CV_8UC1);
+                        opencv_core.Mat mat1 = new opencv_core.Mat(bImageFromConvert.getHeight(), bImageFromConvert.getWidth(), CV_8UC1);
                         opencv_imgproc.cvtColor(mat, mat1, opencv_imgproc.COLOR_RGB2GRAY);
 
                         byte[] data1 = new byte[mat1.rows() * mat1.cols() * (int) (mat1.elemSize())];
@@ -95,7 +95,9 @@ public class GreyScaleSpark {
 
                 } catch (NullPointerException ex) {
 
-                } catch (IIOException ex){
+                } catch (IIOException ex) {
+
+                } catch (IndexOutOfBoundsException ex) {
 
                 }
                 return new Tuple2<Text, BufferedImage>(emptyImage, bufimage);
